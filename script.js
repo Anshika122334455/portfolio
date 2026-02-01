@@ -33,15 +33,28 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
+// Throttle function for performance
+function throttle(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 // Navbar Background on Scroll
-window.addEventListener('scroll', () => {
+window.addEventListener('scroll', throttle(() => {
     const navbar = document.querySelector('.navbar');
     if (window.scrollY > 50) {
         navbar.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.15)';
     } else {
         navbar.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
     }
-});
+}, 100));
 
 // Scroll Reveal Animation
 const observerOptions = {
@@ -116,7 +129,7 @@ if (heroSubtitle) {
 }
 
 // Add active state to navigation based on scroll position
-window.addEventListener('scroll', () => {
+window.addEventListener('scroll', throttle(() => {
     const sections = document.querySelectorAll('section[id]');
     const scrollY = window.pageYOffset;
     
@@ -134,10 +147,10 @@ window.addEventListener('scroll', () => {
             });
         }
     });
-});
+}, 100));
 
 // Add parallax effect to hero section
-window.addEventListener('scroll', () => {
+window.addEventListener('scroll', throttle(() => {
     const scrolled = window.pageYOffset;
     const heroContent = document.querySelector('.hero-content');
     const floatingCard = document.querySelector('.floating-card');
@@ -146,7 +159,7 @@ window.addEventListener('scroll', () => {
         heroContent.style.transform = `translateY(${scrolled * 0.3}px)`;
         floatingCard.style.transform = `translateY(${scrolled * 0.2}px)`;
     }
-});
+}, 50));
 
 // Animate stats counters
 const animateCounters = () => {
@@ -187,8 +200,15 @@ if (statsSection) {
     statsObserver.observe(statsSection);
 }
 
-// Add cursor trail effect (optional - can be commented out if too much)
+// Add cursor trail effect (throttled for performance)
+let lastTrailTime = 0;
+const trailInterval = 50; // Only create trail every 50ms
+
 document.addEventListener('mousemove', (e) => {
+    const now = Date.now();
+    if (now - lastTrailTime < trailInterval) return;
+    lastTrailTime = now;
+    
     const trail = document.createElement('div');
     trail.className = 'cursor-trail';
     trail.style.cssText = `
